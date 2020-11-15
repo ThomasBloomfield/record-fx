@@ -1,0 +1,27 @@
+heroku login
+
+docker ps
+
+heroku container:login
+
+*cd to the app directory where dockerfile sits*
+
+*i used "heroku --help containerush" to realise i needed to add "--app=recordcurrency"
+(the name of the heroku app) to the end of below command*
+
+heroku container:push web --app=recordcurrency
+
+heroku container:release web --app=recordcurrency
+
+heroku open --app=recordcurrency
+
+
+*to stop the app, type "heroku ps --app=recordcurrency" to find the id of the webapp.
+In this case is was "web.1".
+
+Then type "heroku ps:stop web.1 --app=recordcurrency"*
+
+
+*when making changes to the app, don't forget to rebuild the docker image
+before pushing to heroku*
+https://stackoverflow.com/questions/36714384/docker-what-is-proper-way-to-rebuild-and-push-updated-image-to-docker-cloud

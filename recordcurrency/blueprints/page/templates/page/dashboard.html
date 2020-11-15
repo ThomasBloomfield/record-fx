@@ -1,0 +1,25 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Dashboard app{% endblock %}
+
+{% block body %}
+  <!-- <div class="right_col" role="main"> -->
+    <!-- <div class="row"> -->
+      <!-- <div class="col-md-12 col-sm-12 col-xs-12"> -->
+        <!-- <div class="dashboard_graph"> -->
+          <div style="width: 100%; min-height:900px;" >
+          	<div class="container-fluid">
+            <iframe 
+              noresize='noresize' 
+              style='position: absolute; background: white; width: 95%; height:95%;' 
+              src={{ dash_url }}
+              frameborder="0">
+            </iframe>
+        	</div>
+          </div>
+          <!-- <div class="clearfix"></div> -->
+        <!-- </div> -->
+      <!-- </div> -->
+    <!-- </div> -->
+  <!-- </div> -->
+{% endblock %}
