@@ -16,7 +16,7 @@ import os
 url_base = '/plotlydash/'
 
 
-encoded_image = base64.b64encode(open("recordcurrency/static/images/heatmap2.png", 'rb').read())
+encoded_image = base64.b64encode(open("recordcurrency/static/images/ONFXRTN_all.png", 'rb').read())
 # image_directory =  os.getcwd() + '/data/'
 
 def create_dashboard(server):
