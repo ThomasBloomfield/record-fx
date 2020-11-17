@@ -262,7 +262,7 @@ def create_heatmap(table, labels, theme, output_name=None):
     sns.heatmap(table, annot=labels, fmt="", cmap=theme,
                 linewidths=0.30, ax=ax, cbar=False)
     if output_name:
-        fig.savefig("static/images/{}.png".format(output_name))
+        fig.savefig("recordcurrency/static/images/{}.png".format(output_name))
 
 
 
