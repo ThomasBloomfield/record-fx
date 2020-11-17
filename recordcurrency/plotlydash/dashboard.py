@@ -26,6 +26,28 @@ def create_dashboard(server):
         # url_base_pathname=url_base
         )
 
+    def serve_layout():
+        """
+        By default, Dash apps store the app.layout in memory. This ensures that the 
+        layout is only computed once, when the app starts.
+
+        If you set app.layout to a function, then you can serve a dynamic layout on
+         every page load.
+        """
+        return html.Div([
+
+        html.Div(id='on-returns', children=[]),
+        html.H1("testing intervals2"),
+        dcc.Interval(
+            id='interval-component',
+            interval=6*10000, # 10 seconds
+            n_intervals=0
+            )
+
+        ])
+
+    dash_app.layout = serve_layout
+
     # apply_layout_with_auth(dash_app, layout) ###############
 
     # Custom HTML layout
@@ -44,27 +66,7 @@ def create_dashboard(server):
 
 
 
-    def serve_layout():
-        """
-        By default, Dash apps store the app.layout in memory. This ensures that the 
-        layout is only computed once, when the app starts.
 
-        If you set app.layout to a function, then you can serve a dynamic layout on
-         every page load.
-        """
-        return html.Div([
-
-        html.Div(id='on-returns', children=[]),
-        html.H1("testing intervals2"),
-        dcc.Interval(
-            id='interval-component',
-            interval=30*10000, # 10 seconds
-            n_intervals=0
-            )
-
-        ])
-
-    dash_app.layout = serve_layout
 
     # dash_app.config.update({'requests_pathname_prefix': '/recordcurrency/'})
 
