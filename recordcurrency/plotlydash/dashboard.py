@@ -15,8 +15,6 @@ import os
 # url_base = 'dash/app1/'
 url_base = '/plotlydash/'
 
-
-
 # image_directory =  os.getcwd() + '/data/'
 
 def create_dashboard(server):
@@ -32,12 +30,14 @@ def create_dashboard(server):
         layout is only computed once, when the app starts.
 
         If you set app.layout to a function, then you can serve a dynamic layout on
-         every page load.
+        every page load.
         """
         return html.Div([
 
-        html.Div(id='on-returns', children=[]),
-        html.H1("testing intervals2"),
+        html.Div(id='image-div', children=[]),
+
+        html.Div(id='image-div2', children=[]),
+
         dcc.Interval(
             id='interval-component',
             interval=6*10000, # 10 seconds
@@ -58,11 +58,24 @@ def create_dashboard(server):
     #         'https://fonts.googleapis.com/css?family=Lato'
     #     ]
 
-    @dash_app.callback(Output('on-returns', 'children'),
+    @dash_app.callback(Output('image-div', 'children'),
                         [Input('interval-component', 'n_intervals')])
     def update_image(n):
-        encoded_image = base64.b64encode(open("recordcurrency/static/images/ONFXRTN_all.png", 'rb').read())
-        return html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()), style={"height": "600px"})
+        encoded_image = base64.b64encode(
+            open("recordcurrency/static/images/ONFXRTN_all.png", 'rb').read())
+
+        return html.Img(src='data:image/png;base64,{}'\
+            .format(encoded_image.decode()), style={"height": "600px"})
+
+
+    @dash_app.callback(Output('image-div2', 'children'),
+                        [Input('interval-component', 'n_intervals')])
+    def update_image(n):
+        encoded_image = base64.b64encode(
+            open("recordcurrency/static/images/ONFXRTN_all_new.png", 'rb').read())
+
+        return html.Img(src='data:image/png;base64,{}'\
+            .format(encoded_image.decode()), style={"height": "600px"})
 
 
 

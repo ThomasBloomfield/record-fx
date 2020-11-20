@@ -14,8 +14,26 @@ def create_app(debug=True):
     app.config.from_object('config.settings')
     app.config.from_pyfile('settings.py', silent=True)
 
+
+    # app.debug = True
+
+
+
     with app.app_context():
 
+
+        @app.after_request
+        def add_header(response):
+            """
+            Add headers to both force latest IE rendering engine or Chrome Frame,
+            and also to cache the rendered page for 10 minutes.
+            """
+            response.headers['X-UA-Compatible'] = "IE=Edge,chrome=1"
+            response.headers['Cache-Control'] = "no-cache, no-store, must-revalidate, public, max-age=0"
+            response.headers["Expires"] = 0
+            response.headers["Pragma"] = "no-cache"
+            return response
+        
         app.register_blueprint(page)
         # app.register_blueprint(user)
         # extensions(app)

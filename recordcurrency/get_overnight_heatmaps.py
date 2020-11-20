@@ -263,6 +263,8 @@ def create_heatmap(table, labels, theme, output_name=None):
                 linewidths=0.30, ax=ax, cbar=False)
     if output_name:
         fig.savefig("recordcurrency/static/images/{}.png".format(output_name))
+        fig.savefig("recordcurrency/static/images/{}{}.png".format(output_name, "_new"))
+        print("created a new heatmap called:", "recordcurrency/static/images/{}{}.png".format(output_name, "_new"))
 
 
 

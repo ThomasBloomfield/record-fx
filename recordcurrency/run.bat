@@ -1,0 +1,1 @@
+python recordcurrency\scrape_finviz.py
