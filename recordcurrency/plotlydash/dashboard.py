@@ -44,9 +44,17 @@ def create_dashboard(server):
                         str(days): str(days) for days in [50, 100, 150, 200, 250, 300]
                         },
                         step=None
-                    )
+                    ),
+                    
 
                 ),
+
+
+
+
+                    # dcc.Loading(id="loading-1",children=[html.Div(id= "loading-output-1")]),
+
+                    
                     html.Div(
                         id='image-div', children=[]
                     ),
@@ -67,10 +75,15 @@ def create_dashboard(server):
     #     ]
 
 
+    # @dash_app.callback(
+    #     Output("loading-output-1", "children"),
+    #     [Input('lookback-slider', 'value')])
+
     @dash_app.callback(Output('image-div', 'children'),
         [Input(component_id='lookback-slider',component_property='value')
         ]
     )
+
 
     def update_image(lookback):
 
