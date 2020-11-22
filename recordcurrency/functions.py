@@ -226,7 +226,7 @@ def return_heatmap_data(dfs, rows, columns):
     return table, labels
 
 
-def create_heatmap(table, labels, theme, output_name=None):
+def create_heatmap(table, labels, theme, lookback, output_name=None):
     fig, ax = plt.subplots(figsize=(16, 8), dpi=250)
 
     
@@ -253,7 +253,7 @@ def create_heatmap(table, labels, theme, output_name=None):
     ttl = ax.title
     ttl.set_position([0.5, 1.05])
 
-    fig.text(0.13, 0.08, "Last updated: {}".format(last_update), ha ='left', fontsize = 12)
+    fig.text(0.13, 0.08, "Last updated: {}, {} day lookback period".format(last_update, lookback), ha ='left', fontsize = 12)
 
     
     ax.set_xticks([])

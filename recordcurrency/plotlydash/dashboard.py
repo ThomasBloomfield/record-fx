@@ -34,7 +34,8 @@ def create_dashboard(server):
         every page load.
         """
         return html.Div([
-                html.Div(
+                html.Div([
+                    html.H2("Look-back Period (days)"),
                     dcc.Slider(
                         id='lookback-slider',
                         min=50,
@@ -44,17 +45,14 @@ def create_dashboard(server):
                         str(days): str(days) for days in [50, 100, 150, 200, 250, 300]
                         },
                         step=None
-                    ),
+                    )
                     
 
-                ),
-
-
+                ], style={"width": "50%"}),
 
 
                     # dcc.Loading(id="loading-1",children=[html.Div(id= "loading-output-1")]),
 
-                    
                     html.Div(
                         id='image-div', children=[]
                     ),
@@ -83,7 +81,6 @@ def create_dashboard(server):
         [Input(component_id='lookback-slider',component_property='value')
         ]
     )
-
 
     def update_image(lookback):
 
@@ -139,7 +136,7 @@ def create_dashboard(server):
 
         print(allccy_table)
 
-        encoded_image = create_heatmap(allccy_table, allccy_labels, theme="RdBu", output_name="ONFXRTN_all")
+        encoded_image = create_heatmap(allccy_table, allccy_labels, theme="RdBu", output_name="ONFXRTN_all", lookback=lookback)
 
         # encoded_image = base64.b64encode(
         #     open("recordcurrency/static/images/ONFXRTN_all.png", 'rb').read())
