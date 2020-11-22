@@ -8,6 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import base64
 import os
+from recordcurrency.functions import *
 # from .layout import html_layout
 # from .Dash_fun import apply_layout_with_auth, load_object, save_object
 
@@ -34,17 +35,22 @@ def create_dashboard(server):
         """
         return html.Div([
 
-        html.Div(id='image-div', children=[]),
+            dcc.Loading(id="loading-heatmap",
+                children=[
+                    html.Div(id='image-div', children=[]),
 
-        html.Div(id='image-div2', children=[]),
+                    # html.Div(id='image-div2', children=[])
 
-        dcc.Interval(
-            id='interval-component',
-            interval=6*10000, # 10 seconds
-            n_intervals=0
+                    dcc.Interval(
+                        id='interval-component',
+                        interval=12*10000, # 10 seconds
+                        n_intervals=0
+                    )
+
+                ], type="default"
             )
-
         ])
+
 
     dash_app.layout = serve_layout
 
@@ -58,24 +64,75 @@ def create_dashboard(server):
     #         'https://fonts.googleapis.com/css?family=Lato'
     #     ]
 
+    @dash_app.callback(Output("loading-heatmap", "children"), [Input("", "")])
+
     @dash_app.callback(Output('image-div', 'children'),
                         [Input('interval-component', 'n_intervals')])
     def update_image(n):
-        encoded_image = base64.b64encode(
-            open("recordcurrency/static/images/ONFXRTN_all.png", 'rb').read())
+
+        ccy = [
+            'GBP=X', 'EUR=X', 'NZD=X', 'CHF=X', 'JPY=X', 'AUD=X', 'CAD=X',
+            'CZK=X', 'HUF=X', 'ZAR=X',  'MXN=X', 'PLN=X', 'TRY=X', 'RUB=X',
+            'BRL=X', 'COP=X', 'CLP=X', 'PEN=X', 'RON=X',  'TWD=X', 'THB=X',
+            'IDR=X', 'INR=X', 'HKD=X', 'SGD=X', 'CNH=X', 'CNY=X', 'PHP=X', 
+            'MYR=X', 'KRW=X', 'DKK=X', 'SEK=X', 'NOK=X'
+        ]
+
+        ccys_to_inverse = [
+            'USD/EUR', 'USD/GBP', 'USD/AUD', 'USD/NZD', 'GBP/EUR', 'NZD/AUD',
+            'CHF/AUD', 'JPY/AUD', 'CHF/CAD', 'SEK/NOK', 'JPY/NOK', 'JPY/SEK',
+            'JPY/CAD'
+        ]
+
+        # define currency groups
+        G10vUSD = [
+            'EURUSD', 'USDJPY', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDCAD',
+            'NZDUSD', 'USDNOK', 'USDSEK'
+        ]
+
+        otherG10 = [
+            'EURGBP', 'EURAUD', 'EURNZD', 'EURCAD', 'EURCHF', 'EURNOK', 
+            'EURSEK', 'EURJPY', 'GBPAUD', 'GBPNZD', 'GBPCAD', 'GBPCHF',
+            'GBPNOK', 'GBPSEK', 'GBPJPY', 'AUDNZD', 'AUDCAD', 'AUDCHF',
+            'AUDNOK', 'AUDSEK', 'AUDJPY', 'NZDCAD', 'NZDCHF', 'NZDNOK',
+            'NZDSEK', 'NZDJPY', 'CADCHF', 'CADNOK', 'CADSEK', 'CADJPY',
+            'CHFNOK', 'CHFSEK', 'CHFJPY', 'NOKSEK',  'NOKJPY', 'SEKJPY'
+            ]
+
+        EMvsUSD = [
+            'USDBRL', 'USDCLP', 'USDCNH', 'USDCNY', 'USDCOP', 'USDCZK',
+            'USDHUF', 'USDIDR', 'USDINR', 'USDKRW', 'USDMXN', 'USDMYR',
+            'USDPEN', 'USDPHP', 'USDPLN', 'USDRON', 'USDRUB', 'USDTRY',
+            'USDTWD', 'USDZAR', 'USDTHB'
+        ]
+
+        start = datetime.datetime.now() - relativedelta(days=200)
+        end = datetime.datetime.now()
+
+
+        df = get_ccy_data(start, end, ccy).interpolate()
+        df = calculate_crosses(df)
+        df = inverse_currencies(df=df, currencies=ccys_to_inverse)
+
+        df_g10 = return_bar_data(df, ccy_group=G10vUSD)
+        df_otherg10 = return_bar_data(df, ccy_group=otherG10)
+        df_EM = return_bar_data(df, ccy_group=EMvsUSD)
+
+        allccy_table, allccy_labels = return_heatmap_data([df_g10, df_otherg10, df_EM], rows=6, columns=11)
+
+        print(allccy_table)
+
+        encoded_image = create_heatmap(allccy_table, allccy_labels, theme="RdBu", output_name="ONFXRTN_all")
+
+        # encoded_image = base64.b64encode(
+        #     open("recordcurrency/static/images/ONFXRTN_all.png", 'rb').read())
+
+
 
         return html.Img(src='data:image/png;base64,{}'\
             .format(encoded_image.decode()), style={"height": "600px"})
 
 
-    @dash_app.callback(Output('image-div2', 'children'),
-                        [Input('interval-component', 'n_intervals')])
-    def update_image(n):
-        encoded_image = base64.b64encode(
-            open("recordcurrency/static/images/ONFXRTN_all_new.png", 'rb').read())
-
-        return html.Img(src='data:image/png;base64,{}'\
-            .format(encoded_image.decode()), style={"height": "600px"})
 
 
 
