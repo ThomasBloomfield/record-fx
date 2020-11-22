@@ -34,21 +34,23 @@ def create_dashboard(server):
         every page load.
         """
         return html.Div([
-
-            dcc.Loading(id="loading-heatmap",
-                children=[
-                    html.Div(id='image-div', children=[]),
-
-                    # html.Div(id='image-div2', children=[])
-
-                    dcc.Interval(
-                        id='interval-component',
-                        interval=12*10000, # 10 seconds
-                        n_intervals=0
+                html.Div(
+                    dcc.Slider(
+                        id='lookback-slider',
+                        min=50,
+                        max=300,
+                        value=200,
+                        marks={
+                        str(days): str(days) for days in [50, 100, 150, 200, 250, 300]
+                        },
+                        step=None
                     )
 
-                ], type="default"
-            )
+                ),
+                    html.Div(
+                        id='image-div', children=[]
+                    ),
+
         ])
 
 
@@ -64,11 +66,13 @@ def create_dashboard(server):
     #         'https://fonts.googleapis.com/css?family=Lato'
     #     ]
 
-    @dash_app.callback(Output("loading-heatmap", "children"), [Input("", "")])
 
     @dash_app.callback(Output('image-div', 'children'),
-                        [Input('interval-component', 'n_intervals')])
-    def update_image(n):
+        [Input(component_id='lookback-slider',component_property='value')
+        ]
+    )
+
+    def update_image(lookback):
 
         ccy = [
             'GBP=X', 'EUR=X', 'NZD=X', 'CHF=X', 'JPY=X', 'AUD=X', 'CAD=X',
@@ -106,7 +110,7 @@ def create_dashboard(server):
             'USDTWD', 'USDZAR', 'USDTHB'
         ]
 
-        start = datetime.datetime.now() - relativedelta(days=200)
+        start = datetime.datetime.now() - relativedelta(days=lookback)
         end = datetime.datetime.now()
 
 
