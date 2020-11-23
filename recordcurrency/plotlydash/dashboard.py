@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import base64
 import os
 from recordcurrency.functions import *
+import time
 # from .layout import html_layout
 # from .Dash_fun import apply_layout_with_auth, load_object, save_object
 
@@ -18,10 +19,13 @@ url_base = '/plotlydash/'
 
 # image_directory =  os.getcwd() + '/data/'
 
+external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
+
 def create_dashboard(server):
     dash_app = dash.Dash(
         server=server,
         routes_pathname_prefix=url_base,
+        external_stylesheets=external_stylesheets
         # url_base_pathname=url_base
         )
 
@@ -35,27 +39,47 @@ def create_dashboard(server):
         """
         return html.Div([
                 html.Div([
-                    html.H2("Look-back Period (days)"),
+                    html.H3("Look-back Period"),
                     dcc.Slider(
                         id='lookback-slider',
                         min=50,
                         max=300,
                         value=200,
                         marks={
-                        str(days): str(days) for days in [50, 100, 150, 200, 250, 300]
-                        },
-                        step=None
-                    )
+                            50: {'label': '50 days'},
+                            100: {'label': '100 days'},
+                            150: {'label': '150 days'},
+                            200: {'label': '200 days'},
+                            250: {'label': '250 days'},
+                            300: {'label': '300 days'}
+                        }
+                      # marks={
+                        # str(days): str(days) for days in [50, 100, 150, 200, 250, 300]
+                        # },
+                                            )
                     
 
-                ], style={"width": "50%"}),
+                ], style={"width": "50%", "display": "inline-block"} # "padding": "15px"
+                ),
 
+                html.Div([]),
 
-                    # dcc.Loading(id="loading-1",children=[html.Div(id= "loading-output-1")]),
+                html.Div([
+                    dcc.Loading(
+                        type="dot", # 'graph', 'cube', 'circle', 'dot', 'default'
+                        id="heatmap-loader",
+                        children=[
+                            html.Div(id="loading-output-1", 
+                                children=[]
+                            )
+                        ],
+                    )
+                ], style={"margin-top": "3%"}),
 
-                    html.Div(
-                        id='image-div', children=[]
-                    ),
+                    # # keep this for working example
+                    # html.Div(
+                    #     id='image-div', children=[]
+                    # ),
 
         ])
 
@@ -77,16 +101,17 @@ def create_dashboard(server):
     #     Output("loading-output-1", "children"),
     #     [Input('lookback-slider', 'value')])
 
-    @dash_app.callback(Output('image-div', 'children'),
-        [Input(component_id='lookback-slider',component_property='value')
-        ]
-    )
 
-    def update_image(lookback):
+
+    @dash_app.callback(
+        Output("loading-output-1", "children"),
+        [Input("lookback-slider", "value")])
+
+    def return_image(lookback):
 
         ccy = [
             'GBP=X', 'EUR=X', 'NZD=X', 'CHF=X', 'JPY=X', 'AUD=X', 'CAD=X',
-            'CZK=X', 'HUF=X', 'ZAR=X',  'MXN=X', 'PLN=X', 'TRY=X', 'RUB=X',
+            'CZK=X', 'HUF=X', 'ZAR=X', 'MXN=X', 'PLN=X', 'TRY=X', 'RUB=X',
             'BRL=X', 'COP=X', 'CLP=X', 'PEN=X', 'RON=X',  'TWD=X', 'THB=X',
             'IDR=X', 'INR=X', 'HKD=X', 'SGD=X', 'CNH=X', 'CNY=X', 'PHP=X', 
             'MYR=X', 'KRW=X', 'DKK=X', 'SEK=X', 'NOK=X'
@@ -150,6 +175,77 @@ def create_dashboard(server):
 
 
 
+    # # keep this for working example
+    # @dash_app.callback(Output('image-div', 'children'),
+    #     [Input(component_id='lookback-slider',component_property='value')
+    #     ]
+    # )
+
+    # def update_image(lookback):
+
+    #     ccy = [
+    #         'GBP=X', 'EUR=X', 'NZD=X', 'CHF=X', 'JPY=X', 'AUD=X', 'CAD=X',
+    #         'CZK=X', 'HUF=X', 'ZAR=X', 'MXN=X', 'PLN=X', 'TRY=X', 'RUB=X',
+    #         'BRL=X', 'COP=X', 'CLP=X', 'PEN=X', 'RON=X',  'TWD=X', 'THB=X',
+    #         'IDR=X', 'INR=X', 'HKD=X', 'SGD=X', 'CNH=X', 'CNY=X', 'PHP=X', 
+    #         'MYR=X', 'KRW=X', 'DKK=X', 'SEK=X', 'NOK=X'
+    #     ]
+
+    #     ccys_to_inverse = [
+    #         'USD/EUR', 'USD/GBP', 'USD/AUD', 'USD/NZD', 'GBP/EUR', 'NZD/AUD',
+    #         'CHF/AUD', 'JPY/AUD', 'CHF/CAD', 'SEK/NOK', 'JPY/NOK', 'JPY/SEK',
+    #         'JPY/CAD'
+    #     ]
+
+    #     # define currency groups
+    #     G10vUSD = [
+    #         'EURUSD', 'USDJPY', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDCAD',
+    #         'NZDUSD', 'USDNOK', 'USDSEK'
+    #     ]
+
+    #     otherG10 = [
+    #         'EURGBP', 'EURAUD', 'EURNZD', 'EURCAD', 'EURCHF', 'EURNOK', 
+    #         'EURSEK', 'EURJPY', 'GBPAUD', 'GBPNZD', 'GBPCAD', 'GBPCHF',
+    #         'GBPNOK', 'GBPSEK', 'GBPJPY', 'AUDNZD', 'AUDCAD', 'AUDCHF',
+    #         'AUDNOK', 'AUDSEK', 'AUDJPY', 'NZDCAD', 'NZDCHF', 'NZDNOK',
+    #         'NZDSEK', 'NZDJPY', 'CADCHF', 'CADNOK', 'CADSEK', 'CADJPY',
+    #         'CHFNOK', 'CHFSEK', 'CHFJPY', 'NOKSEK',  'NOKJPY', 'SEKJPY'
+    #         ]
+
+    #     EMvsUSD = [
+    #         'USDBRL', 'USDCLP', 'USDCNH', 'USDCNY', 'USDCOP', 'USDCZK',
+    #         'USDHUF', 'USDIDR', 'USDINR', 'USDKRW', 'USDMXN', 'USDMYR',
+    #         'USDPEN', 'USDPHP', 'USDPLN', 'USDRON', 'USDRUB', 'USDTRY',
+    #         'USDTWD', 'USDZAR', 'USDTHB'
+    #     ]
+
+    #     start = datetime.datetime.now() - relativedelta(days=lookback)
+    #     end = datetime.datetime.now()
+
+
+    #     df = get_ccy_data(start, end, ccy).interpolate()
+    #     df = calculate_crosses(df)
+    #     df = inverse_currencies(df=df, currencies=ccys_to_inverse)
+
+    #     df_g10 = return_bar_data(df, ccy_group=G10vUSD)
+    #     df_otherg10 = return_bar_data(df, ccy_group=otherG10)
+    #     df_EM = return_bar_data(df, ccy_group=EMvsUSD)
+
+    #     allccy_table, allccy_labels = return_heatmap_data([df_g10, df_otherg10, df_EM], rows=6, columns=11)
+
+    #     print(allccy_table)
+
+    #     encoded_image = create_heatmap(allccy_table, allccy_labels, theme="RdBu", output_name="ONFXRTN_all", lookback=lookback)
+
+    #     # encoded_image = base64.b64encode(
+    #     #     open("recordcurrency/static/images/ONFXRTN_all.png", 'rb').read())
+
+
+
+    #     return html.Img(src='data:image/png;base64,{}'\
+    #         .format(encoded_image.decode()), style={"height": "600px"})
+
+
 
 
     # dash_app.config.update({'requests_pathname_prefix': '/recordcurrency/'})
@@ -158,6 +254,9 @@ def create_dashboard(server):
     # dash_app.scripts.config.serve_locally = True
 
     return dash_app.server
+
+
+
 
 # app = dash.Dash(
 #     __name__,

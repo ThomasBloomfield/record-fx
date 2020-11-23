@@ -151,7 +151,10 @@ def return_bar_data(df, ccy_group):
     
     # get most recent o/n return, and 200d stddev 
     on_returns_recent = df.pct_change()[-1:]
+
+    print("blah", on_returns_hist.index[-2:])
     
+
     std_200d = on_returns_hist.std()
     
     # calculate the size of the move in terms of 200d stddev
@@ -162,7 +165,7 @@ def return_bar_data(df, ccy_group):
     stddev = std_dev_move[ccy_group]
     rtn = on_returns_recent[ccy_group]
     
-    df_bar = pd.concat([ stddev, rtn], axis=0).T
+    df_bar = pd.concat([stddev, rtn], axis=0).T
     df_bar.columns = ['std_dev_move', 'return']
     
     # sort by first column (std. dev. move)
@@ -253,7 +256,7 @@ def create_heatmap(table, labels, theme, lookback, output_name=None):
     ttl = ax.title
     ttl.set_position([0.5, 1.05])
 
-    fig.text(0.13, 0.08, "Last updated: {}, {} day lookback period".format(last_update, lookback), ha ='left', fontsize = 12)
+    fig.text(0.13, 0.08, "Last updated: {}, {} day look-back period".format(last_update, lookback), ha ='left', fontsize = 12)
 
     
     ax.set_xticks([])
@@ -269,7 +272,7 @@ def create_heatmap(table, labels, theme, lookback, output_name=None):
         pic_IObytes.seek(0)
         base64_png = base64.b64encode(pic_IObytes.read())
 
-        print(output_name, " base64 representation: ", base64_png)
+        # print(output_name, " base64 representation: ", base64_png)
         
     return base64_png
 
