@@ -229,8 +229,7 @@ def return_heatmap_data(dfs, rows, columns):
     return table, labels
 
 
-def create_heatmap(table, labels, theme, lookback, output_name=None):
-    fig, ax = plt.subplots(figsize=(16, 8), dpi=250)
+def create_heatmap(table, labels, theme, lookback):
 
     
     # boolean to indicate which currency groups the boolean contains
@@ -238,39 +237,69 @@ def create_heatmap(table, labels, theme, lookback, output_name=None):
     otherg10_currencies = np.any(np.char.find(labels, "GBPSEK") == 0) # Other G10 currency found
     em_currencies = np.any(np.char.find(labels, "USDTWD") == 0) # EM currency found
     
-    # if labels contain all currency groups
-    if np.all([g10_currencies,  otherg10_currencies, em_currencies]):
-        group = " - G10 & EM"
-    elif g10_currencies == True:
-        group =  " - G10 vs USD"
-    elif otherg10_currencies == True:
-        group = " - Other G10"
-    else:
-        group = " - EM vs USD"
-
-
-    title = "Overnight FX Returns"+group
+    dpi = 250
     last_update = datetime.datetime.now().strftime("%d-%b-%Y %H:%M%p")
-    
-    plt.title(title, fontsize=18)
-    ttl = ax.title
-    ttl.set_position([0.5, 1.05])
 
-    fig.text(0.13, 0.08, "Last updated: {}, {} day look-back period".format(last_update, lookback), ha ='left', fontsize = 12)
+    if g10_currencies == True:
+        group =  "G10 vs USD"
+        fig=plt.figure(dpi=dpi)
+        
+        ax = fig.add_axes([0, 0, 0.25, 0.25])
+                
+        title = group
+        last_update = datetime.datetime.now().strftime("%d-%b-%Y %H:%M%p")
+        plt.title(title, fontsize=6)
+        
+        ax.axis('off')
+        fig.text(0.04, -0.01, "Last updated: {}".format(last_update), ha ='left', fontsize = 4)
 
-    
-    ax.set_xticks([])
-    ax.set_yticks([])
 
-    ax.axis('off')
+        sns.heatmap(table, annot=labels, fmt="", cmap=theme,
+                    linewidths=0.30, ax=ax, cbar=False,
+                    square=True, annot_kws={"size": 4},
+                   )
 
-    sns.heatmap(table, annot=labels, fmt="", cmap=theme,
-                linewidths=0.30, ax=ax, cbar=False)
-    if output_name:        
-        pic_IObytes = io.BytesIO()
-        fig.savefig(pic_IObytes, format='png')
-        pic_IObytes.seek(0)
-        base64_png = base64.b64encode(pic_IObytes.read())
+    elif otherg10_currencies == True:
+        group = "Other G10"
+        fig=plt.figure(dpi=dpi)
+        
+        ax = fig.add_axes([0, 0, 0.5, 0.5])
+
+        title = group
+        last_update = datetime.datetime.now().strftime("%d-%b-%Y %H:%M%p")
+        plt.title(title, fontsize=6)
+
+        ax.axis('off')
+        fig.text(0.08, -0.01, "Last updated: {}".format(last_update), ha ='left', fontsize = 4)
+
+
+        sns.heatmap(table, annot=labels, fmt="", cmap=theme,
+                    linewidths=0.30, ax=ax, cbar=False,
+                    square=True, annot_kws={"size": 4}
+                   )
+        
+    else:
+        group = "EM vs USD"
+        fig=plt.figure(dpi=dpi)
+
+        ax = fig.add_axes([0, 0, 0.43, 0.43])
+        
+        title = group
+        last_update = datetime.datetime.now().strftime("%d-%b-%Y %H:%M%p")
+        plt.title(title, fontsize=6)
+
+        ax.axis('off')
+        fig.text(0.01, 0.08, "Last updated: {}".format(last_update), ha ='left', fontsize = 4)
+
+        sns.heatmap(table, annot=labels, fmt="", cmap=theme,
+                    linewidths=0.30, ax=ax, cbar=False,
+                    square=True, annot_kws={"size": 4}
+                   )
+
+    pic_IObytes = io.BytesIO()
+    fig.savefig(pic_IObytes, format='png', bbox_inches='tight')
+    pic_IObytes.seek(0)
+    base64_png = base64.b64encode(pic_IObytes.read())
 
         # print(output_name, " base64 representation: ", base64_png)
         

@@ -62,25 +62,72 @@ def create_dashboard(server):
                 ], style={"width": "50%", "display": "inline-block"} # "padding": "15px"
                 ),
 
-                html.Div([]),
-
                 html.Div([
-                    dcc.Loading(
-                        type="dot", # 'graph', 'cube', 'circle', 'dot', 'default'
-                        id="heatmap-loader",
-                        children=[
-                            html.Div(id="loading-output-1", 
-                                children=[]
-                            )
-                        ],
-                    )
-                ], style={"margin-top": "3%"}),
+
+                    html.Div([
+                        dcc.Loading(
+                            type="dot", # 'graph', 'cube', 'circle', 'dot', 'default'
+                            id="heatmap-loader-1",
+                            children=[
+                                html.Div(id="loading-output-1", 
+                                    children=[]
+                                )
+                            ],
+                        )
+                    ], style={
+                        "margin-top": "3%",
+                        # "border":"2px black solid",
+                        "width": "20%",
+                        "display": "inline-block",
+                        "vertical-align": "top"
+                        }
+                    ),
+
+                    html.Div([
+                        dcc.Loading(
+                            type="dot", # 'graph', 'cube', 'circle', 'dot', 'default'
+                            id="heatmap-loader-2",
+                            children=[
+                                html.Div(id="loading-output-2", 
+                                    children=[]
+                                )
+                            ],
+                        )
+                    ], style={
+                        "margin-top": "3%",
+                        # "border":"2px black solid",
+                        "width": "33%",
+                        "display": "inline-block",
+                        "vertical-align": "top"
+
+                        }
+                    ),
+
+                    html.Div([
+                        dcc.Loading(
+                            type="dot", # 'graph', 'cube', 'circle', 'dot', 'default'
+                            id="heatmap-loader-3",
+                            children=[
+                                html.Div(id="loading-output-3", 
+                                    children=[]
+                                )
+                            ],
+                        )
+                    ], style={
+                        "margin-top": "3%",
+                        # "border":"2px black solid",
+                        "width": "35%",
+                        "display": "inline-block",
+                        "vertical-align": "top"
+
+                        }
+                    ),
 
                     # # keep this for working example
                     # html.Div(
                     #     id='image-div', children=[]
                     # ),
-
+            ]),
         ])
 
 
@@ -104,7 +151,9 @@ def create_dashboard(server):
 
 
     @dash_app.callback(
-        Output("loading-output-1", "children"),
+        [Output("loading-output-1", "children"),
+        Output("loading-output-2", "children"),
+        Output("loading-output-3", "children")],
         [Input("lookback-slider", "value")])
 
     def return_image(lookback):
@@ -157,19 +206,42 @@ def create_dashboard(server):
         df_otherg10 = return_bar_data(df, ccy_group=otherG10)
         df_EM = return_bar_data(df, ccy_group=EMvsUSD)
 
-        allccy_table, allccy_labels = return_heatmap_data([df_g10, df_otherg10, df_EM], rows=6, columns=11)
+        # allccy_table, allccy_labels = return_heatmap_data([df_g10, df_otherg10, df_EM], rows=6, columns=11)
+        g10_table, g10_labels = return_heatmap_data([df_g10], rows=3, columns=3)
+        otherg10_table, otherg10_labels = return_heatmap_data([df_otherg10], rows=6, columns=6)
+        em_table, em_labels = return_heatmap_data([df_EM], rows=3, columns=7)
 
-        print(allccy_table)
+        g10_encoded_image = create_heatmap(g10_table, g10_labels, 
+            theme="RdBu", lookback=lookback)
+        g10_decoded_image = html.Img(src='data:image/png;base64,{}'\
+            .format(g10_encoded_image.decode()), 
+                style={
+                    # "height": "600px"
+                    })
 
-        encoded_image = create_heatmap(allccy_table, allccy_labels, theme="RdBu", output_name="ONFXRTN_all", lookback=lookback)
+        otherg10_encoded_image = create_heatmap(otherg10_table, otherg10_labels,
+            theme="RdBu", lookback=lookback)
+        otherg10_decoded_image = html.Img(src='data:image/png;base64,{}'\
+            .format(otherg10_encoded_image.decode()), 
+                style={
+                    # "height": "600px"
+                    })
+
+        em_encoded_image = create_heatmap(em_table, em_labels,
+            theme="RdBu", lookback=lookback)
+        em_decoded_image = html.Img(src='data:image/png;base64,{}'\
+            .format(em_encoded_image.decode()), 
+                style={
+                    # "height": "600px"
+                    })
+
 
         # encoded_image = base64.b64encode(
         #     open("recordcurrency/static/images/ONFXRTN_all.png", 'rb').read())
 
 
 
-        return html.Img(src='data:image/png;base64,{}'\
-            .format(encoded_image.decode()), style={"height": "600px"})
+        return g10_decoded_image, otherg10_decoded_image, em_decoded_image
 
 
 
