@@ -10,6 +10,7 @@ import seaborn as sns
 from pandas_datareader import data as pdr
 import io
 import base64
+import math
 
 
 def get_ccy_data(start, end, ccys):
@@ -118,7 +119,7 @@ def inverse_currencies(df, currencies):
     return df_inversed
 
 
-def return_bar_data(df, ccy_group):
+def return_bar_data(df, ccy_group, rtn_lookback, std_lookback):
     """
     Reformats the hourly returns dataframes into to be used in
     a plotly express bar chart.
@@ -128,6 +129,10 @@ def return_bar_data(df, ccy_group):
             the currencies.
         ccy_group: A list of currencies (e.g G10 currencies) in the
             format "EURGBP".
+        rtn_lookback: Number of days over which to calculate the
+            currency returns
+        std_lookback: Number of days over which to calculate the
+            standard deviation
             
     Returns:
         df_bar: A dataframe where 
@@ -149,35 +154,40 @@ def return_bar_data(df, ccy_group):
             
     on_returns_hist = df.pct_change()
     
+    # get the overnight returns (i.e. not 6am to 6pm)
+    on_returns_hist = on_returns_hist[on_returns_hist.index.time < datetime.time(12) ]
+    
     # get most recent o/n return, and 200d stddev 
-    on_returns_recent = df.pct_change()[-1:]
+    on_returns_recent = df.pct_change()
+    
+    rtn = (1+on_returns_hist).rolling(window=rtn_lookback).apply(np.prod, raw=True) - 1
+    rtn = rtn.iloc[-1, :]
+    
+    std = on_returns_hist.iloc[-std_lookback:].std()
+    
+    scaled_std = std*math.sqrt(rtn_lookback)
+    
+    std_dev_move = rtn/scaled_std
 
-    print("blah", on_returns_hist.index[-2:])
-    
-
-    std_200d = on_returns_hist.std()
-    
-    # calculate the size of the move in terms of 200d stddev
-    std_dev_move = on_returns_recent / std_200d
-    
     # get the values for plotting
     labels = on_returns_recent[ccy_group].columns
     stddev = std_dev_move[ccy_group]
-    rtn = on_returns_recent[ccy_group]
+    rtn = rtn[ccy_group]
     
-    df_bar = pd.concat([stddev, rtn], axis=0).T
+    df_bar = pd.concat([stddev, rtn], axis=1)
     df_bar.columns = ['std_dev_move', 'return']
     
-    # sort by first column (std. dev. move)
+    
+#     sort by first column (std. dev. move)
     df_bar = df_bar.sort_values(by='std_dev_move', ascending=False)
     df_bar = df_bar.T.reset_index(drop=True)
     
-    # for annotations
+#     for annotations
     xcoords = list(np.arange(len(df_bar.columns)))
     stddevs = list(df_bar.iloc[0, :].values) # for annot height
     rtns = ["{0:.2%}".format(x) for x in list(df_bar.iloc[1, :].values)]
 
-    # put into format for px.bar
+#     # put into format for px.bar
     df_bar = df_bar.T.reset_index().rename(
         columns={'index': 'pair', 0: 'std_dev_move', 1: 'rtn'})
     

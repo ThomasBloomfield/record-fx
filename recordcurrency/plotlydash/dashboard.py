@@ -39,27 +39,55 @@ def create_dashboard(server):
         """
         return html.Div([
                 html.Div([
-                    dcc.Markdown("""##### Look-back Period"""),
+                    dcc.Markdown("""##### Standard Deviation Look-back Period"""),
                     dcc.Slider(
-                        id='lookback-slider',
+                        id='std-lookback-slider',
                         min=50,
-                        max=300,
+                        max=250,
                         value=200,
                         marks={
                             50: {'label': '50 days'},
                             100: {'label': '100 days'},
                             150: {'label': '150 days'},
                             200: {'label': '200 days'},
-                            250: {'label': '250 days'},
-                            300: {'label': '300 days'}
-                        }
+                            250: {'label': '250 days'},                        }
                       # marks={
                         # str(days): str(days) for days in [50, 100, 150, 200, 250, 300]
                         # },
-                                            )
+                                            ),
+
+                    html.Div([
+
+                        dcc.Markdown("""##### Returns Look-back Period"""),
+                        dcc.Input(
+                            id="rtn-input",
+                            type="number",
+                            value=1,
+                            placeholder="Num days",
+                        ),
+                        # dcc.Slider(
+                        #     id='rtn-lookback-slider',
+                        #     min=1,
+                        #     max=240,
+                        #     value=1,
+                        #     marks={
+                        #         1: {'label': '1 day'},
+                        #         5: {'label': '5 days'},
+                        #         20: {'label': '20 days'},
+                        #         60: {'label': '60 days'},
+                        #         120: {'label': '120 days'},
+                        #         240: {'label': '240 days'}
+                        #     }
+
+                        #   # marks={
+                        #     # str(days): str(days) for days in [50, 100, 150, 200, 250, 300]
+                        #     # },
+                        #                         )
+
+                    ], style={"margin-top": "3%"}),
                     
 
-                ], style={"width": "50%", "display": "inline-block"} # "padding": "15px"
+                ], style={"width": "35%", "display": "inline-block", "margin-left": "2%"} # "padding": "15px"
                 ),
 
                 html.Div([
@@ -75,7 +103,7 @@ def create_dashboard(server):
                             ],
                         )
                     ], style={
-                        "margin-top": "3%",
+                        "margin-top": "2%",
                         # "border":"2px black solid",
                         # "width": "20%",
                         # "display": "inline-block",
@@ -154,9 +182,10 @@ def create_dashboard(server):
         [Output("loading-output-1", "children"),
         Output("loading-output-2", "children"),
         Output("loading-output-3", "children")],
-        [Input("lookback-slider", "value")])
+        [Input("std-lookback-slider", "value"),
+        Input("rtn-input", "value")])
 
-    def return_image(lookback):
+    def return_image(std_lookback, rtn_lookback):
 
         ccy = [
             'GBP=X', 'EUR=X', 'NZD=X', 'CHF=X', 'JPY=X', 'AUD=X', 'CAD=X',
@@ -194,7 +223,7 @@ def create_dashboard(server):
             'USDTWD', 'USDZAR', 'USDTHB'
         ]
 
-        start = datetime.datetime.now() - relativedelta(days=lookback)
+        start = datetime.datetime.now() - relativedelta(days=260)
         end = datetime.datetime.now()
 
 
@@ -202,9 +231,9 @@ def create_dashboard(server):
         df = calculate_crosses(df)
         df = inverse_currencies(df=df, currencies=ccys_to_inverse)
 
-        df_g10 = return_bar_data(df, ccy_group=G10vUSD)
-        df_otherg10 = return_bar_data(df, ccy_group=otherG10)
-        df_EM = return_bar_data(df, ccy_group=EMvsUSD)
+        df_g10 = return_bar_data(df, ccy_group=G10vUSD, rtn_lookback=rtn_lookback, std_lookback=std_lookback)
+        df_otherg10 = return_bar_data(df, ccy_group=otherG10, rtn_lookback=rtn_lookback, std_lookback=std_lookback)
+        df_EM = return_bar_data(df, ccy_group=EMvsUSD, rtn_lookback=rtn_lookback, std_lookback=std_lookback)
 
         # allccy_table, allccy_labels = return_heatmap_data([df_g10, df_otherg10, df_EM], rows=6, columns=11)
         g10_table, g10_labels = return_heatmap_data([df_g10], rows=3, columns=3)
@@ -212,7 +241,7 @@ def create_dashboard(server):
         em_table, em_labels = return_heatmap_data([df_EM], rows=3, columns=7)
 
         g10_encoded_image = create_heatmap(g10_table, g10_labels, 
-            theme="RdBu", lookback=lookback)
+            theme="RdBu", lookback=std_lookback)
         g10_decoded_image = html.Img(src='data:image/png;base64,{}'\
             .format(g10_encoded_image.decode()), 
                 style={
@@ -223,7 +252,7 @@ def create_dashboard(server):
                     })
 
         otherg10_encoded_image = create_heatmap(otherg10_table, otherg10_labels,
-            theme="RdBu", lookback=lookback)
+            theme="RdBu", lookback=std_lookback)
         otherg10_decoded_image = html.Img(src='data:image/png;base64,{}'\
             .format(otherg10_encoded_image.decode()), 
                 style={
@@ -234,7 +263,7 @@ def create_dashboard(server):
                     })
 
         em_encoded_image = create_heatmap(em_table, em_labels,
-            theme="RdBu", lookback=lookback)
+            theme="RdBu", lookback=std_lookback)
         em_decoded_image = html.Img(src='data:image/png;base64,{}'\
             .format(em_encoded_image.decode()), 
                 style={
