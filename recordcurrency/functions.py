@@ -270,7 +270,7 @@ def create_heatmap(table, labels, theme, lookback):
         plt.title(title, fontsize=6)
 
         ax.axis('off')
-        fig.text(0.08, -0.01, "Last updated: {}".format(last_update), ha ='left', fontsize = 4)
+        fig.text(0.07, -0.01, "Last updated: {}".format(last_update), ha ='left', fontsize = 4)
 
 
         sns.heatmap(table, annot=labels, fmt="", cmap=theme,
@@ -282,7 +282,7 @@ def create_heatmap(table, labels, theme, lookback):
         group = "EM vs USD"
         fig=plt.figure(dpi=dpi)
 
-        ax = fig.add_axes([0, 0, 0.43, 0.43])
+        ax = fig.add_axes([0, 0, 0.44, 0.44])
         
         title = group
         last_update = datetime.datetime.now().strftime("%d-%b-%Y %H:%M%p")

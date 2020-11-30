@@ -39,7 +39,7 @@ def create_dashboard(server):
         """
         return html.Div([
                 html.Div([
-                    html.H3("Look-back Period"),
+                    dcc.Markdown("""##### Look-back Period"""),
                     dcc.Slider(
                         id='lookback-slider',
                         min=50,
@@ -77,8 +77,8 @@ def create_dashboard(server):
                     ], style={
                         "margin-top": "3%",
                         # "border":"2px black solid",
-                        "width": "20%",
-                        "display": "inline-block",
+                        # "width": "20%",
+                        # "display": "inline-block",
                         "vertical-align": "top"
                         }
                     ),
@@ -94,10 +94,10 @@ def create_dashboard(server):
                             ],
                         )
                     ], style={
-                        "margin-top": "3%",
+                        # "margin-top": "3%",
                         # "border":"2px black solid",
-                        "width": "33%",
-                        "display": "inline-block",
+                        # "width": "33%",
+                        # "display": "inline-block",
                         "vertical-align": "top"
 
                         }
@@ -114,10 +114,10 @@ def create_dashboard(server):
                             ],
                         )
                     ], style={
-                        "margin-top": "3%",
+                        # "margin-top": "3%",
                         # "border":"2px black solid",
-                        "width": "35%",
-                        "display": "inline-block",
+                        # "width": "35%",
+                        # "display": "inline-block",
                         "vertical-align": "top"
 
                         }
@@ -127,8 +127,8 @@ def create_dashboard(server):
                     # html.Div(
                     #     id='image-div', children=[]
                     # ),
-            ]),
-        ])
+                ]),
+        ], style={"margin-bottom": "3%"})
 
 
     dash_app.layout = serve_layout
@@ -216,7 +216,10 @@ def create_dashboard(server):
         g10_decoded_image = html.Img(src='data:image/png;base64,{}'\
             .format(g10_encoded_image.decode()), 
                 style={
-                    # "height": "600px"
+                    # "height": "50%",
+                    # "width": "30%",
+                        # "border":"2px black solid",
+
                     })
 
         otherg10_encoded_image = create_heatmap(otherg10_table, otherg10_labels,
@@ -224,7 +227,10 @@ def create_dashboard(server):
         otherg10_decoded_image = html.Img(src='data:image/png;base64,{}'\
             .format(otherg10_encoded_image.decode()), 
                 style={
-                    # "height": "600px"
+                    # "height": "50%",
+                    # "width": "30%",
+                        # "border":"2px black solid",
+
                     })
 
         em_encoded_image = create_heatmap(em_table, em_labels,
@@ -232,7 +238,9 @@ def create_dashboard(server):
         em_decoded_image = html.Img(src='data:image/png;base64,{}'\
             .format(em_encoded_image.decode()), 
                 style={
-                    # "height": "600px"
+                    # "height": "50%",
+                    # "width": "30%",
+                        # "border":"2px black solid",
                     })
 
 
